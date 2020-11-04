@@ -2,3 +2,4 @@ venv
 .idea
 outline.txt
 main.sqlite
+.env
