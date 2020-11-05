@@ -49,13 +49,14 @@
             return
         }
         let url = `/api/v1/update/by_id`;
-        let _name = document.getElementById('name_input');
-        let _origin = document.getElementById('origin_input');
-        let _retrieval = document.getElementById('retrieval_input');
-        let _location = document.getElementById('location_input');
-        let _path = document.getElementById('path_input');
-        let _tags = document.getElementById('tags_input');
-        let _data = {'name': _name, 'origin': _origin, 'retrieval': _retrieval, 'location': _location, 'path': _path, 'tags': _tags};
+        let _name = document.getElementById('name_input').value;
+        let _origin = document.getElementById('origin_input').value;
+        let _retrieval = document.getElementById('retrieval_input').value;
+        let _location = document.getElementById('location_input').value;
+        let _path = document.getElementById('path_input').value;
+        let _tags = document.getElementById('tags_input').value;
+        var _data = {'name': _name, 'origin': _origin, 'retrieval': _retrieval, 'location': _location, 'path': _path, 'tags': _tags};
+        var _data = JSON.stringify(_data)
         $.post(url, {'uid': '000001', 'auth': 'password1234', 'id': _id, 'data': _data})
     }
 </script>
