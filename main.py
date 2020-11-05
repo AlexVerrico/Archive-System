@@ -71,7 +71,26 @@ def add_entry(e_name=None, e_origin=None, e_retrieval_date=None, e_location=None
 def run_queue():
     while True:
         if dbOperations.empty() is False:
-            print(dbOperations.get()['action'])
+            x = dbOperations.get()
+            data = x['data']
+            if x['action'] == 'update' and x['scope'] == 'row':
+                con = sqlite3.connect(x['dbPath'])
+                cur = con.cursor()
+                update_statement = "UPDATE %s SET name = ?, origin = ?, retrieval_date = ?, location = ?, path = ?, tags = ? WHERE %s = ?" % (x['table'], x['column'])
+                cur.execute(update_statement, (data['name'], data['origin'], data['retrieval'], data['location'], data['path'], data['tags'], x['columnValue']))
+                con.commit()
+                con.close()
+            if x['action'] == 'create' and x['scope'] == 'row':
+                con = sqlite3.connect(x['dbPath'])
+                cur = con.cursor()
+                cur.execute("SELECT _contents FROM misc_stuff WHERE id = '000001'")
+                _id = int(cur.fetchone()[0]) + 1
+                cur.execute("UPDATE misc_stuff SET _contents = '%s' WHERE id = '000001'" % str(_id).zfill(6))
+                con.commit()
+                create_statement = "INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?)" % x['table']
+                cur.execute(create_statement, (str(_id).zfill(6), data['name'], data['origin'], data['retrieval'], data['location'], data['path'], data['tags']))
+                con.commit()
+                con.close()
 
 
 def insert_templates(page):
@@ -156,8 +175,10 @@ def update_by_id():
         return '', 400
     con = sqlite3.connect(dbPath)
     cur = con.cursor()
+    print(_id)
     select_statement = "SELECT * FROM entries WHERE id = ?"
-    cur.execute(select_statement, [_uid])
+    cur.execute(select_statement, [_id])
+    print(cur.fetchone())
     db_data = dict()
     if cur.fetchone() is None:
         db_data['action'] = 'create'
@@ -168,20 +189,21 @@ def update_by_id():
     db_data['table'] = 'entries'
     db_data['column'] = 'id'
     db_data['columnValue'] = _id
+    db_data['data'] = _data
     dbOperations.put(db_data)
-    pass
+    return '', 200
 
 
 # Run functions
 
 
-dbOperations.put({'action': 'update',
-                  'scope': 'row',
-                  'dbPath': 'main.sqlite',
-                  'table': 'test1',
-                  'column': 'test2',
-                  'columnValue': 'test3',
-                  })
+# dbOperations.put({'action': 'update',
+#                   'scope': 'row',
+#                   'dbPath': 'main.sqlite',
+#                   'table': 'test1',
+#                   'column': 'test2',
+#                   'columnValue': 'test3',
+#                   })
 #
 # window = tk.Tk()
 # greeting = tk.Label(text="Hello, Tkinter")
