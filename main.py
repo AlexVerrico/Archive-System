@@ -73,11 +73,20 @@ def run_queue():
         if dbOperations.empty() is False:
             x = dbOperations.get()
             data = x['data']
+            # for _dict in data:
+            #     for key in _dict:
+            #         _dict[key] = _dict[key].replace("!", "!!").replace("%", "!%").replace("_", "!_").replace("[", "![")
             if x['action'] == 'update' and x['scope'] == 'row':
                 con = sqlite3.connect(x['dbPath'])
                 cur = con.cursor()
                 update_statement = "UPDATE %s SET name = ?, origin = ?, retrieval_date = ?, location = ?, path = ?, tags = ? WHERE %s = ?" % (x['table'], x['column'])
-                cur.execute(update_statement, (data['name'], data['origin'], data['retrieval'], data['location'], data['path'], data['tags'], x['columnValue']))
+                cur.execute(update_statement, (data['name'],
+                                               data['origin'],
+                                               data['retrieval'],
+                                               data['location'],
+                                               data['path'],
+                                               data['tags'],
+                                               x['columnValue']))
                 con.commit()
                 con.close()
             if x['action'] == 'create' and x['scope'] == 'row':
@@ -88,7 +97,13 @@ def run_queue():
                 cur.execute("UPDATE misc_stuff SET _contents = '%s' WHERE id = '000001'" % str(_id).zfill(6))
                 con.commit()
                 create_statement = "INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?)" % x['table']
-                cur.execute(create_statement, (str(_id).zfill(6), data['name'], data['origin'], data['retrieval'], data['location'], data['path'], data['tags']))
+                cur.execute(create_statement, (str(_id).zfill(6),
+                                               data['name'],
+                                               data['origin'],
+                                               data['retrieval'],
+                                               data['location'],
+                                               data['path'],
+                                               data['tags']))
                 con.commit()
                 con.close()
 
@@ -162,6 +177,45 @@ def seek_by_id():
     return flask.jsonify(out), 200
 
 
+@app.route('/api/v1/seek/by_name', methods=['GET'])
+def seek_by_name():
+    if 'uid' not in flask.request.args or 'auth' not in flask.request.args or 'name' not in flask.request.args:
+        return '', 400
+    else:
+        _uid = str(flask.request.args['uid'])
+        _auth = str(flask.request.args['auth'])
+        _name = str(flask.request.args['name'])
+    if auth(_uid, _auth) is False:
+        return '', 400
+    _name = _name.replace("!", "!!").replace("%", "!%").replace("_", "!_").replace("[", "![")
+    select_statement = "SELECT * FROM entries WHERE name LIKE ? ESCAPE '!'"
+    # select_statement = "SELECT * FROM entries WHERE ? IN name"
+    con = sqlite3.connect(dbPath)
+    cur = con.cursor()
+    _name = "".join(("%", _name, "%"))
+    cur.execute(select_statement, (_name,))
+    db_out = cur.fetchall()
+    con.close()
+    if db_out is None:
+        return flask.jsonify({'name': _name, 'id': "no_results"}), 200
+    print(db_out)
+    # out = list(x)
+    # print(x)
+    out = list()
+    for x in db_out:
+        _temp = dict()
+        print(x[0])
+        _temp['id'] = x[0]
+        _temp['name'] = x[1]
+        _temp['origin'] = x[2]
+        _temp['retrieval_date'] = x[3]
+        _temp['location'] = x[4]
+        _temp['path'] = x[5]
+        _temp['tags'] = x[6]
+        out.append(_temp)
+    return flask.jsonify(out), 200
+
+
 @app.route('/api/v1/update/by_id', methods=['POST'])
 def update_by_id():
     if 'uid' not in flask.request.values or 'auth' not in flask.request.values or 'id' not in flask.request.values or 'data' not in flask.request.values:
@@ -178,9 +232,10 @@ def update_by_id():
     print(_id)
     select_statement = "SELECT * FROM entries WHERE id = ?"
     cur.execute(select_statement, [_id])
-    print(cur.fetchone())
+    x = cur.fetchone() # print(cur.fetchone())
+    print(x)
     db_data = dict()
-    if cur.fetchone() is None:
+    if x is None:
         db_data['action'] = 'create'
     else:
         db_data['action'] = 'update'
