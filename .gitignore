@@ -3,3 +3,4 @@ venv
 outline.txt
 main.sqlite
 .env
+local
