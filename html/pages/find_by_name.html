@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    %%%head%%%
+</head>
+<body>
+%%%nav%%%
+<div class="main_div">
+    <div>
+        <div  class="div_row">
+            <div class="div_col db_out_div"><label for="name_input">Name:</label><input id="name_input" class="db_input"  type="text"/></div>
+            <div class="div_col db_out_div"><a id="db_seek_name" href="#" onclick="seek_by_name()">Find</a></div>
+            <div id="name_output_div" class="div_col db_out_div"></div>
+        </div>
+    </div>
+</div>
+%%%footer%%%
+%%%corejs%%%
+<script>
+    function seek_by_name(){
+        let _name = document.getElementById("name_input").value;
+        if (_name == "") {
+            alert("Error: Name Must Not Be Empty!")
+            return
+        }
+        let url = `/api/v1/seek/by_name?uid=000001&auth=password1234&name=${_name}`;
+        $.get(url)
+        .done(function(data){
+            var x;
+            var out = "";
+            for (x of data){
+                out = out + `<a href="/entry_by_id/?id=${x['id']}">${x['name']}</a><br/>`
+            }
+            document.getElementById("name_output_div").innerHTML = out;
+        })
+    }
+</script>
+</body>
+</html>
