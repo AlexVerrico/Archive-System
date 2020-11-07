@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Archive System</title>
+    %%%head%%%
+</head>
+<body>
+%%%nav%%%
+<div class="main_div">
+    <div>
+        <div  class="div_row">
+            <div class="div_col db_out_div"><label for="tag_input">Tag:</label><input id="tag_input" class="db_input" type="text"/></div>
+            <div class="div_col db_out_div"><a id="db_seek_tag" href="#" onclick="seek_by_tag()">Find</a></div>
+            <div id="tag_output_div" class="div_col db_out_div"></div>
+        </div>
+    </div>
+</div>
+%%%footer%%%
+%%%corejs%%%
+<script>
+    function seek_by_tag(){
+        let _tag = document.getElementById("tag_input").value;
+        if (_tag == "") {
+            alert("Error: Tag Must Not Be Empty!")
+            return
+        }
+        let url = `/api/v1/seek/by_tag?uid=000001&auth=password1234&tag=${_tag}`;
+        $.get(url)
+        .done(function(data){
+            var x;
+            var out = "";
+            for (x of data){
+                out = out + `<a href="/entry_by_id/?tag=${x['id']}">${x['name']} (${x['tags']})</a><br/>`
+            }
+            document.getElementById("tag_output_div").innerHTML = out;
+        })
+    }
+</script>
+</body>
+</html>
