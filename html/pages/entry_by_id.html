@@ -17,17 +17,31 @@
             <div class="div_col db_out_div"><label for="location_input">Location:</label><input id="location_input" class="db_input"  type="text"/></div>
             <div class="div_col db_out_div"><label for="path_input">Path:</label><input id="path_input" class="db_input"  type="text"/></div>
             <div class="div_col db_out_div"><label for="tags_input">Tags:</label><input id="tags_input" class="db_input"  type="text"/></div>
-            <div class="div_col db_out_div"><a id="db_seek_id" href="#" onclick="seek_by_id()">Find</a> ------ <a id="db_update_id" href="#" onclick="update_by_id()">Update</a></div>
+            <div class="div_col db_out_div"><a id="db_seek_id" href="#" onclick="seek_by_id()">Find</a> ------ <a id="db_update_id" href="#" onclick="update_by_id()">Create/Update</a></div>
         </div>
     </div>
 </div>
 %%%footer%%%
 %%%corejs%%%
 <script>
+    if (get('id')){
+        let _id = get('id')
+        let url = `/api/v1/seek/by_id?uid=000001&auth=password1234&id=${_id}`;
+        $.get(url)
+        .done(function(data){
+            document.getElementById('id_input').value = data['id'];
+            document.getElementById('name_input').value = data['name'];
+            document.getElementById('origin_input').value = data['origin'];
+            document.getElementById('retrieval_input').value = data['retrieval_date'];
+            document.getElementById('location_input').value = data['location'];
+            document.getElementById('path_input').value = data['path'];
+            document.getElementById('tags_input').value = data['tags'];
+        })
+    }
     function seek_by_id(){
         let _id = document.getElementById("id_input").value;
         if (_id == "") {
-            alert("Error: ID Must Not Be Empty!")
+            alert("Error: ID Must Not Be Empty!");
             return
         }
         let url = `/api/v1/seek/by_id?uid=000001&auth=password1234&id=${_id}`;
@@ -44,6 +58,9 @@
     }
     function update_by_id(){
         let _id = document.getElementById("id_input").value;
+        if (_id == "new"){
+
+        }
         if (_id == "") {
             alert("Error: ID Must Not Be Empty!")
             return
