@@ -150,6 +150,12 @@ def find_by_name():
     return page, 200
 
 
+@app.route('/find_by_tag/', methods=['GET'])
+def find_by_tag():
+    page = insert_templates('html/pages/find_by_tag.html')
+    return page, 200
+
+
 # Then we declare the api paths:
 @app.route('/api/v1/seek/by_id', methods=['GET'])
 def seek_by_id():
@@ -228,7 +234,7 @@ def seek_by_tag():
     select_statement = "SELECT * FROM entries WHERE tags LIKE ? ESCAPE '!'"
     con = sqlite3.connect(dbPath)
     cur = con.cursor()
-    _name = "".join(("%", _tag, "%"))
+    _tag = "".join(("%", _tag, "%"))
     cur.execute(select_statement, (_tag,))
     db_out = cur.fetchall()
     con.close()
