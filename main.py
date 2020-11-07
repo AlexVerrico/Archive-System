@@ -1,13 +1,14 @@
 # Copyright (C) 2020 Alex Verrico. All Rights Reserved
+# For licensing enquiries please contact Alex Verrico (contact@alexverrico.com)
 
 
 import sqlite3
-import tkinter as tk
+# import tkinter as tk
 from queue import Queue
-import time
+# import time
 from threading import Timer
 import os
-import datetime
+# import datetime
 import flask
 from dotenv import load_dotenv
 import json
@@ -24,48 +25,48 @@ app = flask.Flask(__name__)
 # Declare Functions
 
 
-def add_entry(e_name=None, e_origin=None, e_retrieval_date=None, e_location=None, e_path=None, e_tags=None, _id=None):
-    if not e_name:
-        e_name = "unnamed"
-    if not e_origin:
-        e_origin = "unknown"
-    if not e_retrieval_date:
-        e_retrieval_date = "unknown"
-    if not e_location:
-        e_location = "unknown"
-    if not e_path:
-        e_path = "unknown"
-    if not e_tags:
-        e_tags = "unknown"
-
-    if _id:
-        print(_id)
-        pass
-    else:
-        e_name = str(e_name)
-        e_origin = str(e_origin)
-        e_retrieval_date = str(e_retrieval_date)
-        e_location = str(e_location)
-        e_path = str(e_path)
-        e_tags = str(e_tags).split(" ")
-        print(e_tags)
-        con = sqlite3.connect(dbPath)
-        cur = con.cursor()
-        # values = id,name,origin,retrieval_date,location,path,tags
-        cur.execute("SELECT _contents FROM misc_stuff WHERE id = '000001'")
-        _id = int(cur.fetchone()[0]) + 1
-        _id = str(_id)
-        _id = _id.zfill(6)
-        print(_id)
-        id_update_statement = "UPDATE misc_stuff SET _contents = ? WHERE id = '000001'"
-        cur.execute(id_update_statement, (_id,))
-        insert_statement = 'INSERT INTO entries values(?, ?, ?, ?, ?, ?, ?)'
-        _e_tags = e_tags[0]
-        for i in range(1, len(e_tags)):
-            _e_tags = "".join((_e_tags, " ", e_tags[i]))
-        cur.execute(insert_statement, (str(_id), e_name, e_origin, e_retrieval_date, e_location, e_path, _e_tags,))
-        con.commit()
-        return True
+# def add_entry(e_name=None, e_origin=None, e_retrieval_date=None, e_location=None, e_path=None, e_tags=None, _id=None):
+#     if not e_name:
+#         e_name = "unnamed"
+#     if not e_origin:
+#         e_origin = "unknown"
+#     if not e_retrieval_date:
+#         e_retrieval_date = "unknown"
+#     if not e_location:
+#         e_location = "unknown"
+#     if not e_path:
+#         e_path = "unknown"
+#     if not e_tags:
+#         e_tags = "unknown"
+#
+#     if _id:
+#         print(_id)
+#         pass
+#     else:
+#         e_name = str(e_name)
+#         e_origin = str(e_origin)
+#         e_retrieval_date = str(e_retrieval_date)
+#         e_location = str(e_location)
+#         e_path = str(e_path)
+#         e_tags = str(e_tags).split(" ")
+#         print(e_tags)
+#         con = sqlite3.connect(dbPath)
+#         cur = con.cursor()
+#         # values = id,name,origin,retrieval_date,location,path,tags
+#         cur.execute("SELECT _contents FROM misc_stuff WHERE id = '000001'")
+#         _id = int(cur.fetchone()[0]) + 1
+#         _id = str(_id)
+#         _id = _id.zfill(6)
+#         print(_id)
+#         id_update_statement = "UPDATE misc_stuff SET _contents = ? WHERE id = '000001'"
+#         cur.execute(id_update_statement, (_id,))
+#         insert_statement = 'INSERT INTO entries values(?, ?, ?, ?, ?, ?, ?)'
+#         _e_tags = e_tags[0]
+#         for i in range(1, len(e_tags)):
+#             _e_tags = "".join((_e_tags, " ", e_tags[i]))
+#         cur.execute(insert_statement, (str(_id), e_name, e_origin, e_retrieval_date, e_location, e_path, _e_tags,))
+#         con.commit()
+#         return True
 
 
 def run_queue():
@@ -73,9 +74,6 @@ def run_queue():
         if dbOperations.empty() is False:
             x = dbOperations.get()
             data = x['data']
-            # for _dict in data:
-            #     for key in _dict:
-            #         _dict[key] = _dict[key].replace("!", "!!").replace("%", "!%").replace("_", "!_").replace("[", "![")
             if x['action'] == 'update' and x['scope'] == 'row':
                 con = sqlite3.connect(x['dbPath'])
                 cur = con.cursor()
@@ -94,10 +92,10 @@ def run_queue():
                 cur = con.cursor()
                 cur.execute("SELECT _contents FROM misc_stuff WHERE id = '000001'")
                 _id = int(cur.fetchone()[0]) + 1
-                cur.execute("UPDATE misc_stuff SET _contents = '%s' WHERE id = '000001'" % str(_id).zfill(6))
+                cur.execute("UPDATE misc_stuff SET _contents = '%s' WHERE id = '000001'" % str(_id).zfill(10))
                 con.commit()
                 create_statement = "INSERT INTO %s VALUES (?, ?, ?, ?, ?, ?, ?)" % x['table']
-                cur.execute(create_statement, (str(_id).zfill(6),
+                cur.execute(create_statement, (str(_id).zfill(10),
                                                data['name'],
                                                data['origin'],
                                                data['retrieval'],
@@ -125,7 +123,6 @@ def auth(_uid, _auth, _type='system'):
     _connection = sqlite3.connect(dbPath)
     _cursor = _connection.cursor()
     _auth_cmd = "SELECT password FROM auth WHERE id = ?"
-    # temp = cursor.execute("SELECT password FROM systems_auth WHERE id = %s" % str(_id)).fetchone()
     _temp = _cursor.execute(_auth_cmd, (str(_uid),)).fetchone()
     if str(_auth) == str(_temp[0]):
         return True
@@ -144,6 +141,12 @@ def home():
 @app.route('/entry_by_id/', methods=['GET'])
 def entry_by_id():
     page = insert_templates('html/pages/entry_by_id.html')
+    return page, 200
+
+
+@app.route('/find_by_name/', methods=['GET'])
+def find_by_name():
+    page = insert_templates('html/pages/find_by_name.html')
     return page, 200
 
 
@@ -189,7 +192,6 @@ def seek_by_name():
         return '', 400
     _name = _name.replace("!", "!!").replace("%", "!%").replace("_", "!_").replace("[", "![")
     select_statement = "SELECT * FROM entries WHERE name LIKE ? ESCAPE '!'"
-    # select_statement = "SELECT * FROM entries WHERE ? IN name"
     con = sqlite3.connect(dbPath)
     cur = con.cursor()
     _name = "".join(("%", _name, "%"))
@@ -198,13 +200,43 @@ def seek_by_name():
     con.close()
     if db_out is None:
         return flask.jsonify({'name': _name, 'id': "no_results"}), 200
-    print(db_out)
-    # out = list(x)
-    # print(x)
     out = list()
     for x in db_out:
         _temp = dict()
-        print(x[0])
+        _temp['id'] = x[0]
+        _temp['name'] = x[1]
+        _temp['origin'] = x[2]
+        _temp['retrieval_date'] = x[3]
+        _temp['location'] = x[4]
+        _temp['path'] = x[5]
+        _temp['tags'] = x[6]
+        out.append(_temp)
+    return flask.jsonify(out), 200
+
+
+@app.route('/api/v1/seek/by_tag', methods=['GET'])
+def seek_by_tag():
+    if 'uid' not in flask.request.args or 'auth' not in flask.request.args or 'tag' not in flask.request.args:
+        return '', 400
+    else:
+        _uid = str(flask.request.args['uid'])
+        _auth = str(flask.request.args['auth'])
+        _tag = str(flask.request.args['tag'])
+    if auth(_uid, _auth) is False:
+        return '', 400
+    _tag = _tag.replace("!", "!!").replace("%", "!%").replace("_", "!_").replace("[", "![")
+    select_statement = "SELECT * FROM entries WHERE tags LIKE ? ESCAPE '!'"
+    con = sqlite3.connect(dbPath)
+    cur = con.cursor()
+    _name = "".join(("%", _tag, "%"))
+    cur.execute(select_statement, (_tag,))
+    db_out = cur.fetchall()
+    con.close()
+    if db_out is None:
+        return flask.jsonify({'tag': _tag, 'id': "no_results"}), 200
+    out = list()
+    for x in db_out:
+        _temp = dict()
         _temp['id'] = x[0]
         _temp['name'] = x[1]
         _temp['origin'] = x[2]
@@ -229,11 +261,9 @@ def update_by_id():
         return '', 400
     con = sqlite3.connect(dbPath)
     cur = con.cursor()
-    print(_id)
     select_statement = "SELECT * FROM entries WHERE id = ?"
     cur.execute(select_statement, [_id])
-    x = cur.fetchone() # print(cur.fetchone())
-    print(x)
+    x = cur.fetchone()
     db_data = dict()
     if x is None:
         db_data['action'] = 'create'
@@ -251,33 +281,7 @@ def update_by_id():
 
 # Run functions
 
-
-# dbOperations.put({'action': 'update',
-#                   'scope': 'row',
-#                   'dbPath': 'main.sqlite',
-#                   'table': 'test1',
-#                   'column': 'test2',
-#                   'columnValue': 'test3',
-#                   })
-#
-# window = tk.Tk()
-# greeting = tk.Label(text="Hello, Tkinter")
-# greeting.pack()
-# button = tk.Button(
-#     text="Click me!",
-#     width=25,
-#     height=5,
-#     bg="blue",
-#     fg="yellow",
-# )
-# button.pack()
-# entry = tk.Entry(fg="yellow", bg="blue", width=50)
-# entry.pack()
-# window.mainloop()
-
-
-# Start dbOperations Queue
 t = Timer(0, run_queue)
-t.start()
+t.start()  # Start dbOperations Queue
 
 app.run('0.0.0.0', 5515)
