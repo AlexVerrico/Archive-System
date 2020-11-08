@@ -31,7 +31,7 @@
             var x;
             var out = "";
             for (x of data){
-                out = out + `<a href="/entry_by_id/?tag=${x['id']}">${x['name']} (${x['tags']})</a><br/>`
+                out = out + `<a href="/entry_by_id/?id=${x['id']}">${x['name']} (${x['tags']})</a><br/>`
             }
             document.getElementById("tag_output_div").innerHTML = out;
         })
