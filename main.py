@@ -21,6 +21,7 @@ dbPath = "".join((Basedir, "main.sqlite"))
 dbOperations = Queue(maxsize=0)
 
 app = flask.Flask(__name__)
+port = os.getenv("PORT")
 # app.config["DEBUG"] = True
 
 
@@ -289,4 +290,4 @@ print("Building pages....")
 build_static_pages()
 print("Built pages.")
 
-app.run('0.0.0.0', 5515)
+app.run('0.0.0.0', port)
