@@ -90,7 +90,8 @@ def recursive_listdir(path):
 def build_static_pages():
     pages_dir = ''.join((Basedir, 'html/pages'))
     built_dir = ''.join((Basedir, 'built'))
-    shutil.rmtree(built_dir)
+    if os.path.exists(built_dir):
+        shutil.rmtree(built_dir)
     os.mkdir(built_dir)
     filelist = recursive_listdir(pages_dir)
     out = []
