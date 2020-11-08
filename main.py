@@ -1,14 +1,13 @@
+#! /usr/bin/python3
+
 # Copyright (C) 2020 Alex Verrico. All Rights Reserved
 # For licensing enquiries please contact Alex Verrico (contact@alexverrico.com)
 
 
 import sqlite3
-# import tkinter as tk
 from queue import Queue
-# import time
 from threading import Timer
 import os
-# import datetime
 import flask
 from dotenv import load_dotenv
 import json
@@ -16,7 +15,6 @@ import shutil
 
 
 # Initialize stuff
-
 load_dotenv()
 Basedir = os.getenv("BASEDIR")
 dbPath = "".join((Basedir, "main.sqlite"))
@@ -24,6 +22,7 @@ dbOperations = Queue(maxsize=0)
 
 app = flask.Flask(__name__)
 # app.config["DEBUG"] = True
+
 
 # Declare Functions
 
@@ -73,7 +72,8 @@ def insert_templates(page):
                      {'file': 'footer.html', 'string': 'footer'},
                      {'file': 'core.html', 'string': 'corejs'}]
     for template in template_list:
-        with open(f'html/templates/{template["file"]}', 'r') as f:
+        _path = ''.join((Basedir, f'html/templates/{template["file"]}'))
+        with open(_path, 'r') as f:
             page = page.replace(f'%%%{template["string"]}%%%', f.read())
     return page
 
@@ -88,8 +88,8 @@ def recursive_listdir(path):
 
 
 def build_static_pages():
-    pages_dir = 'html/pages'
-    built_dir = 'built'
+    pages_dir = ''.join((Basedir, 'html/pages'))
+    built_dir = ''.join((Basedir, 'built'))
     shutil.rmtree(built_dir)
     os.mkdir(built_dir)
     filelist = recursive_listdir(pages_dir)
@@ -128,7 +128,8 @@ def auth(_uid, _auth, _type='system'):
 # First we declare the normal paths:
 @app.route('/', methods=['GET'])
 def home():
-    return flask.send_from_directory('built', 'index.html')
+    _dir = ''.join((Basedir, 'built'))
+    return flask.send_from_directory(_dir, 'index.html')
 
 
 # Then we declare the api paths:
@@ -260,7 +261,7 @@ def update_by_id():
     return '', 200
 
 
-# And finally we define a catch-all route to serve the built pages
+# And finally we create a catch-all route to serve the pre-built pages
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def catch_all(path):
@@ -274,7 +275,8 @@ def catch_all(path):
         x = False
     if path.endswith('/'):
         path = ''.join((path, 'index.html'))
-    return flask.send_from_directory('built', path)
+    _dir = ''.join((Basedir, 'built'))
+    return flask.send_from_directory(_dir, path)
 
 
 # Run functions
