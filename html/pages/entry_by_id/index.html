@@ -75,6 +75,9 @@
         var _data = {'name': _name, 'origin': _origin, 'retrieval': _retrieval, 'location': _location, 'path': _path, 'tags': _tags};
         var _data = JSON.stringify(_data)
         $.post(url, {'uid': '000001', 'auth': 'password1234', 'id': _id, 'data': _data})
+        .done(function(data){
+            alert("save successful");
+        })
     }
 </script>
 </body>
